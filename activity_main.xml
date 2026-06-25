@@ -1,0 +1,109 @@
+package com.example.catalogo
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.ListView
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    // Declarando variables
+    private lateinit var editNombre: EditText
+    private lateinit var spinnerVehiculo: Spinner
+    private lateinit var btnMostrar: Button
+    private lateinit var btnDeveloper: Button
+    private lateinit var imgVehiculo: ImageView
+    private lateinit var listViewHistorial: ListView
+    private lateinit var textResultado: TextView
+
+    // Lista para guardar el historial
+    private val historialSelecciones = mutableListOf<String>()
+    private lateinit var adaptador: ArrayAdapter<String>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // Conectar variables con elementos del XML
+        editNombre = findViewById(R.id.editNombre)
+        spinnerVehiculo = findViewById(R.id.spinnerVehiculo)
+        btnMostrar = findViewById(R.id.btnMostrar)
+        btnDeveloper = findViewById(R.id.btnDeveloper)
+        imgVehiculo = findViewById(R.id.imgVehiculo)
+        listViewHistorial = findViewById(R.id.listViewHistorial)
+        textResultado = findViewById(R.id.textResultado)
+
+        // Configurar el adaptador del ListView
+        adaptador = ArrayAdapter(this, android.R.layout.simple_list_item_1, historialSelecciones)
+        listViewHistorial.adapter = adaptador
+
+        // Configurar opciones del Spinner
+        val vehiculos = arrayOf(
+            "Selecciona un vehículo",
+            "Carro",
+            "Motor",
+            "Camioneta",
+            "Bus"
+        )
+        val adapterSpinner = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            vehiculos
+        )
+        spinnerVehiculo.adapter = adapterSpinner
+
+        // Botón MOSTRAR
+        btnMostrar.setOnClickListener {
+            mostrarVehiculo()
+        }
+
+        // Botón VER DESARROLLADORES
+        btnDeveloper.setOnClickListener {
+            val intent = Intent(this, DeveloperActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    // Función que se ejecuta al presionar MOSTRAR
+    private fun mostrarVehiculo() {
+        // Obtener nombre
+        val nombre = editNombre.text.toString()
+
+        // Obtener vehículo seleccionado
+        val vehiculoSeleccionado = spinnerVehiculo.selectedItem.toString()
+
+        // Validar nombre
+        if (nombre.isEmpty()) {
+            textResultado.text = "⚠️ Por favor, escribe tu nombre"
+            return
+        }
+
+        // Validar vehículo
+        if (vehiculoSeleccionado == "Selecciona un vehículo") {
+            textResultado.text = "⚠️ Por favor, selecciona un vehículo"
+            return
+        }
+
+        // Mostrar resultado
+        textResultado.text = "Usuario: $nombre\nVehículo: $vehiculoSeleccionado"
+
+        // Mostrar imagen según el vehículo
+        when (vehiculoSeleccionado) {
+            "Carro" -> imgVehiculo.setImageResource(R.drawable.carro)
+            "Motor" -> imgVehiculo.setImageResource(R.drawable.motor)
+            "Camioneta" -> imgVehiculo.setImageResource(R.drawable.camioneta)
+            "Bus" -> imgVehiculo.setImageResource(R.drawable.bus)
+        }
+
+        // Agregar al historial
+        val registro = "$nombre - $vehiculoSeleccionado"
+        historialSelecciones.add(registro)
+        adaptador.notifyDataSetChanged()
+    }
+}
